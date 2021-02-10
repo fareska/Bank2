@@ -33,8 +33,8 @@ export default class App extends Component {
     render() {
         return (
             <div>
-                <p>Yor balance -- {this.state.balance}</p>
-                <Transactions transactions={this.state.transactions} />
+                {/* <p>Yor balance -- {this.state.balance}</p>
+                <Transactions transactions={this.state.transactions} /> */}
                 <Operations />
             </div>
         )
