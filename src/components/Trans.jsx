@@ -11,15 +11,20 @@ const capitalize = (s) => {
 const generateColumns = (rows, props) => {
     let columns = []
     let keys = Object.keys(rows[0])
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = 1; i < keys.length-1; i++) {
         const col = { field: keys[i], headerName: capitalize(keys[i]), width: 160 }
+        if(col.field === '__v')
+        {
+            col.headerName = 'Delete Transaction'
+            col.width = 175
+        }
         columns.push(col)
     }
     columns[3].renderCell = (params) => (
         <strong>
             {params.value}
             <Button
-                onClick={() => props.deleteTran(params.value)}
+                onClick={() => props.deleteTran(params.row._id)}
                 variant="contained"
                 color="primary"
                 size="small"
@@ -37,7 +42,10 @@ export default function Trans(props) {
     
     
     let rows = [...props.transactions]
-    rows.forEach((r, i) => r.id = i)
+    rows.forEach((r, i) =>{ 
+        r.id = r._id
+        r.__v = ''
+    })
 
     let columns = generateColumns(rows, props)
     return (

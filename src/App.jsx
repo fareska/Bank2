@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import Operations from './components/Operations'
 import Trans from './components/Trans'
 import Transactions from './components/Transactions'
+const axios = require('axios')
 
 export default class App extends Component {
     constructor() {
@@ -12,25 +13,13 @@ export default class App extends Component {
         }
     }
 
+    getTransactions = async () => {
+        const data = await axios.get('http://localhost:3300/transactions')
+        return data.data
+    }
+
     componentDidMount = async () => {
-        let transactions = [
-            { amount: 3200, vendor: "Elevation", category: "Salary" },
-            { amount: -7, vendor: "Runescape", category: "Entertainment" },
-            { amount: -20, vendor: "Subway", category: "Food" },
-            { amount: 3200, vendor: "Elevation", category: "Salary" },
-            { amount: -7, vendor: "Runescape", category: "Entertainment" },
-            { amount: -20, vendor: "Subway", category: "Food" },
-            { amount: 3200, vendor: "Elevation", category: "Salary" },
-            { amount: -7, vendor: "Runescape", category: "Entertainment" },
-            { amount: -20, vendor: "Subway", category: "Food" },
-            { amount: 3200, vendor: "Elevation", category: "Salary" },
-            { amount: -7, vendor: "Runescape", category: "Entertainment" },
-            { amount: -20, vendor: "Subway", category: "Food" },
-            { amount: 3200, vendor: "Elevation", category: "Salary" },
-            { amount: -7, vendor: "Runescape", category: "Entertainment" },
-            { amount: -20, vendor: "Subway", category: "Food" },
-            { amount: -98, vendor: "La Baguetterie", category: "Food" }
-        ]
+        let transactions = await this.getTransactions()
         await this.setState({ transactions }, () => this.updateBalance())
     }
 
@@ -42,23 +31,29 @@ export default class App extends Component {
         }
     }
 
-    deleteTran = index => {
+    deleteTran = async id => {
+        const data = await axios.delete(`http://localhost:3300/transaction/${id}`)
         let trans = [...this.state.transactions]
+        let index
+        for (let i in trans) {
+            if(trans[i]._id === data.data._id) index = i
+        }
         trans.splice(index, 1)
         this.setState({ transactions: trans },() => this.updateBalance())
     }
 
-    addTran = obje => {        
+    addTran = async obje => {
+        const data = await axios.post('http://localhost:3300/transaction', obje)
+        console.log(data)
         let trans = [...this.state.transactions]
-        trans.push(obje)
+        trans.push(data.data)
         this.setState({ transactions: trans }, () => this.updateBalance())
     }
 
     render() {
         return (
             <div>
-                <p>Yor balance -- {this.state.balance}</p>
-                {/* <Transactions transactions={this.state.transactions} /> */}
+                <h2  > Yor current balance : {this.state.balance}</h2>
                 <Operations addTran={this.addTran} />
                 {this.state.transactions.length > 0 ? <Trans deleteTran={this.deleteTran} transactions={this.state.transactions} /> : null}
             </div>
